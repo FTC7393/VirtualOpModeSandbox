@@ -4,10 +4,45 @@
     <title>
         A title
     </title>
+    <script>
+
+        const socket = new WebSocket('ws://localhost:8020');
+
+        const kill = () => {
+            socket.send(`KILL`);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!e.repeat)
+                socket.send(`DOWN${e.key}`);
+        });
+
+        document.addEventListener('keyup', (e) => {
+            socket.send(`KYUP${e.key}`);
+        });
+
+
+    </script>
+    <style>
+        .console {
+            background-color: #3b3c47;
+            width: 800px;
+            height: 500px;
+        }
+        .console-text {
+            color: White;
+        }
+    </style>
 </head>
 <body>
 <p>
     A content
 </p>
+<div class="console">
+    <p class="console-text">
+
+    </p>
+</div>
+<button onclick="kill()">finished</button>
 </body>
 </html>
