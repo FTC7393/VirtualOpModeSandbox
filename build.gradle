@@ -1,10 +1,5 @@
 plugins {
     id 'java'
-    id 'org.openjfx.javafxplugin' version '0.0.10'
-}
-
-javafx {
-    modules = [ 'javafx.controls' ]
 }
 
 group 'org.example'
