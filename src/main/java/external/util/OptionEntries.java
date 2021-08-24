@@ -1,7 +1,7 @@
 package external.util;
 
 import external.gamepad.GamepadManager;
-import external.webprint.WebPrint;
+import external.webinterface.WebPrint;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -4,6 +4,10 @@ import external.gamepad.VirtualGamepad;
 import external.opmode.AbstractOptionsOpMode;
 import external.opmode.HardwarelessAbstractOp;
 import external.util.OptionEntries;
+import external.webinterface.WebInterface;
+import fi.iki.elonen.NanoHTTPD;
+
+import java.io.IOException;
 
 public class Main {
 
@@ -44,7 +48,14 @@ public class Main {
 
     public static void main(String[] args) {
 //        launch(args);
-        new Main().start();
+
+        try {
+            NanoHTTPD webserver = new WebInterface(8080);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+//        new Main().start();
     }
 }
 

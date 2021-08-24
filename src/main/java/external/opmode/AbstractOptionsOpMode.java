@@ -1,6 +1,6 @@
 package external.opmode;
 
-import external.webprint.WebPrint;
+import external.webinterface.WebPrint;
 import external.util.*;
 
 import java.io.File;
