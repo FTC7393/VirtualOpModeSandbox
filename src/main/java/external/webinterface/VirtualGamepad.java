@@ -43,8 +43,6 @@ public class VirtualGamepad {
             case "/":
                 right_bumper = isDownEvent;
                 break;
-            default:
-                System.out.println(ev);
         }
     }
 
