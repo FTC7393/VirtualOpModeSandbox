@@ -55,16 +55,16 @@ public interface OptionEntries {
             TypeData<Integer> t = new TypeData<>();
             t.type = Integer.class;
 
-            t.step = step;
-            t.min = min;
-            t.max = max;
+//            t.step = step;
+//            t.min = min;
+//            t.max = max;
 
             return t
                     .withMutator((gamepad, value) -> {
                         if (gamepad.right_bumper.justPressed()) {
-                            return Utility.limit(++value, min, max);
+                            return Utility.limit(value + step, min, max);
                         } else if (gamepad.left_bumper.justPressed()) {
-                            return Utility.limit(--value, min, max);
+                            return Utility.limit(value - step, min, max);
                         } else {
                             return null;
                         }
@@ -101,7 +101,7 @@ public interface OptionEntries {
                         }
 
                     })
-                    .withConverter(new Converter<Enum<?>>() {
+                    .withConverter(new Converter<>() {
                         @Override
                         public String toString(Enum<?> object) {
                             return object.name();
