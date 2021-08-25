@@ -87,8 +87,6 @@ public interface OptionEntries {
         public static <T extends Enum<?>> TypeData<Enum<?>> enumType(Class<T> e) {
             TypeData<Enum<?>> t = new TypeData<>();
 
-            WebInterface.out.println(Arrays.toString(e.getTypeParameters()));
-
             CircularArrayList<Enum<?>> variants = new CircularArrayList<>();
             Collections.addAll(variants, e.getEnumConstants());
 

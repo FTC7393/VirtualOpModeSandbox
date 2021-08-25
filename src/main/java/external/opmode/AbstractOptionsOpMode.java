@@ -149,7 +149,7 @@ public class AbstractOptionsOpMode extends AbstractTeleOp {
         physicalFile = new File(filename);
         try {
             if (physicalFile.createNewFile()) {
-                WebInterface.out.println("Past options were not found. Generating..");
+                System.out.println("Past options were not found. Generating..");
             }
         } catch (IOException e) {
             // ignore for now

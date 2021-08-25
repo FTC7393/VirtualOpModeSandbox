@@ -120,7 +120,11 @@ class WebPrintStream extends PrintStream {
         super(new BufferedOutputStream(new OutputStream() {
             @Override
             public void write(int b) throws IOException {
-                socket.getValue().send(String.valueOf((char) (b & 0xFF)));
+                try {
+                    socket.getValue().send(String.valueOf((char) (b & 0xFF)));
+                } catch (NullPointerException e) {
+                    System.out.println("The socket has not been connected yet. Given data has been dropped.");
+                }
             }
         }));
 
