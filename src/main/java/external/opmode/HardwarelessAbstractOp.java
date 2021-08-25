@@ -1,6 +1,6 @@
 package external.opmode;
 
-import external.gamepad.VirtualGamepad;
+import external.webinterface.VirtualGamepad;
 import external.util.Logger;
 
 import java.io.File;

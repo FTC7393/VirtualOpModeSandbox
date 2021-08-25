@@ -5,6 +5,7 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 
 import java.io.*;
+import java.util.Locale;
 
 public class WebInterface extends NanoHTTPD {
 
@@ -13,19 +14,21 @@ public class WebInterface extends NanoHTTPD {
 
     private final Socket socket;
 
-    public static PrintStream out = System.out;
+    public static PrintStream out;
+    public static VirtualGamepad vgp;
 
     public WebInterface(int port) throws IOException {
         super(port);
+
+        vgp = new VirtualGamepad();
+        socket = new Socket(8020);
+        out = new WebPrintStream(socket.active);
 
         if (self != null) {
             throw new ExceptionInInitializerError("WebInterface is a singleton, not allowed");
         } else {
             self = this;
         }
-
-        socket = new Socket(8020);
-        out = new WebPrintStream(socket.active);
 
         socket.start();
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
@@ -86,7 +89,16 @@ class Socket extends NanoWSD {
 
         @Override
         protected void onMessage(WebSocketFrame message) {
-            System.out.println(message.toString());
+//            System.out.println(message.getTextPayload());
+            String payload = message.getTextPayload();
+            String command = payload.substring(0, 4);
+            String arg = payload.substring(4);
+
+            if (command.equals("DOWN")) { // key down
+                WebInterface.vgp.keyHandler(arg.toLowerCase(), true);
+            } else if (command.equals("KYUP")) { // key up
+                WebInterface.vgp.keyHandler(arg.toLowerCase(), false);
+            }
         }
 
         @Override

@@ -1,7 +1,6 @@
 package external.gamepad;
 
-import java.util.ArrayList;
-import java.util.List;
+import external.webinterface.VirtualGamepad;
 
 /**
  * This file was made by the electronVolts, FTC team 7393

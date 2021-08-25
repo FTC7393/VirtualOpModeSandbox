@@ -1,13 +1,11 @@
 package main;
 
-import external.gamepad.VirtualGamepad;
+import external.webinterface.VirtualGamepad;
 import external.opmode.AbstractOptionsOpMode;
 import external.opmode.HardwarelessAbstractOp;
 import external.util.OptionEntries;
 import external.webinterface.WebInterface;
 import fi.iki.elonen.NanoHTTPD;
-
-import java.io.IOException;
 
 public class Main {
 
