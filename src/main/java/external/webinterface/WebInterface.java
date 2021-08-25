@@ -78,8 +78,6 @@ class Socket extends NanoWSD {
         @Override
         protected void onOpen() {
             // ignore
-            System.out.println("Trying to print");
-            WebInterface.out.println("ABcdef");
         }
 
         @Override
@@ -115,7 +113,6 @@ class Socket extends NanoWSD {
 
 class WebPrintStream extends PrintStream {
 
-    // TODO: Actually forward the input to websocket
     public WebPrintStream(InputExtractor<NanoWSD.WebSocket> socket) {
         super(new BufferedOutputStream(new OutputStream() {
             @Override

@@ -1,11 +1,5 @@
 package external.webinterface;
 
-//import javafx.scene.input.KeyCode;
-//import javafx.scene.input.KeyEvent;
-
-//import java.awt.event.KeyEvent;
-import java.util.Map;
-
 public class VirtualGamepad {
 
     public boolean a, b, x, y, left_bumper, right_bumper,

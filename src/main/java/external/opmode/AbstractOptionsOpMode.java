@@ -11,7 +11,7 @@ import java.util.Map;
 public class AbstractOptionsOpMode extends AbstractTeleOp {
 
     // This probably won't work with the ftc app, since telemetry is not in mono (settings maybe?)
-    protected final int LINES = 10; // Precondition: Amount of lines must always be odd
+    protected final int LINES = 11; // Precondition: Amount of lines must always be odd
     protected final int LINE_WIDTH = 80;
     private final int START_OFFSET = (LINES - 1) / 2;
     private final int leftSpacing;
@@ -168,7 +168,7 @@ public class AbstractOptionsOpMode extends AbstractTeleOp {
     @Override
     protected void setup() {
         loadAll();
-        WebInterface.out.println(optionsMap);
+        display();
     }
 
     @Override
