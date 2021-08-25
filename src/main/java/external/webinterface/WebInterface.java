@@ -1,5 +1,6 @@
 package external.webinterface;
 
+import external.util.Cell;
 import external.util.InputExtractor;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
@@ -15,11 +16,11 @@ public class WebInterface extends NanoHTTPD {
     public static PrintStream out;
     public static VirtualGamepad vgp;
 
-    public WebInterface(int port) throws IOException {
+    public WebInterface(int port, Cell<Boolean> connection) throws IOException {
         super(port);
 
         vgp = new VirtualGamepad();
-        Socket socket = new Socket(28020);
+        Socket socket = new Socket(28020, connection);
         out = new WebPrintStream(socket.active);
 
         if (self != null) {
@@ -56,31 +57,37 @@ class Socket extends NanoWSD {
 
     WebSocket a;
     final InputExtractor<WebSocket> active = () -> a;
+    private final Cell<Boolean> connection;
 
-    public Socket(int port) {
+    public Socket(int port, Cell<Boolean> connection) {
         super(port);
+        this.connection = connection;
     }
 
     @Override
     protected WebSocket openWebSocket(IHTTPSession handshake) {
-        a = new SocketImpl(handshake);
+        a = new SocketImpl(handshake, connection);
         return a;
     }
 
     static class SocketImpl extends WebSocket {
 
-        public SocketImpl(IHTTPSession handshakeRequest) {
+        private final Cell<Boolean> connection;
+
+        public SocketImpl(IHTTPSession handshakeRequest, Cell<Boolean> connection) {
             super(handshakeRequest);
+            this.connection = connection;
         }
 
         @Override
         protected void onOpen() {
-            // ignore
+            connection.set(true);
         }
 
         @Override
         protected void onClose(WebSocketFrame.CloseCode code, String reason, boolean initiatedByRemote) {
             // TODO: kill program here
+            connection.set(false);
         }
 
         @Override

@@ -1,7 +1,6 @@
 package main;
 
 import external.util.Cell;
-import external.webinterface.VirtualGamepad;
 import external.opmode.AbstractOptionsOpMode;
 import external.opmode.HardwarelessAbstractOp;
 import external.util.OptionEntries;
@@ -15,23 +14,13 @@ import java.net.URI;
 public class Main {
 
     static final HardwarelessAbstractOp opMode = new OptionsOp();
-    static volatile Cell<Boolean> sigkill = new Cell<>(false);
+    static volatile Cell<Boolean> connected = new Cell<>(false);
     static Thread opThread;
 
-    public void start() {
-
-        opThread.start();
-
-    }
-
-    public void stop() throws InterruptedException {
-        opThread.join();
-    }
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         try {
-            NanoHTTPD webserver = new WebInterface(28080);
+            NanoHTTPD webserver = new WebInterface(28080, connected);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -46,9 +35,12 @@ public class Main {
 
             opMode.gamepad1 = WebInterface.vgp;
             opMode.init();
-            // skip init_loop for now
+            while (!connected.get()) {
+                // WARNING: This method is not guaranteed to loop to completion (in fact, it probably won't run at all)
+                opMode.init_loop();
+            }
             opMode.start();
-            while (!sigkill.get()) {
+            while (connected.get()) {
                 opMode.loop();
             }
             opMode.stop();
@@ -56,6 +48,10 @@ public class Main {
         });
 
         opThread.start();
+
+        opThread.join(); // wait for run to completion
+        System.out.println("OpMode completed successfully, have a nice day");
+        System.exit(0); // to join the webserver worker as well
 
     }
 }
