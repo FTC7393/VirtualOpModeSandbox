@@ -136,7 +136,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
     }
 
-    protected AbstractOptionsOpMode(String filename, Class<? extends Enum<?>> options) {
+    protected AbstractOptionsOpMode(String optionsFilePath, Class<? extends Enum<?>> options) {
         this.optionsList = options.getEnumConstants();
 
         // determine the necessary amount of spacing to display comfortably
@@ -146,7 +146,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
         leftSpacing = longest - (longest % 4) + 4 + 4; // add an extra 4 on there to make sure there's definitely space between name and option
 
-        physicalFile = new File(filename);
+        physicalFile = new File(optionsFilePath);
         try {
             if (physicalFile.createNewFile()) {
                 System.out.println("Past options were not found. Generating..");
