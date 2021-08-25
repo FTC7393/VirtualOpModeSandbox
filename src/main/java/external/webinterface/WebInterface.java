@@ -1,5 +1,6 @@
 package external.webinterface;
 
+import external.util.InputExtractor;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 
@@ -10,7 +11,7 @@ public class WebInterface extends NanoHTTPD {
     private static final File webpage = new File("src/main/resources/index.html");
     private static WebInterface self;
 
-    private NanoWSD socket;
+    private final Socket socket;
 
     public static PrintStream out = System.out;
 
@@ -24,8 +25,9 @@ public class WebInterface extends NanoHTTPD {
         }
 
         socket = new Socket(8020);
-        socket.start();
+        out = new WebPrintStream(socket.active);
 
+        socket.start();
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
 
     }
@@ -51,15 +53,17 @@ public class WebInterface extends NanoHTTPD {
 
 class Socket extends NanoWSD {
 
+    WebSocket a;
+    final InputExtractor<WebSocket> active = () -> a;
+
     public Socket(int port) {
         super(port);
     }
 
     @Override
     protected WebSocket openWebSocket(IHTTPSession handshake) {
-        return new SocketImpl(handshake);
-
-
+        a = new SocketImpl(handshake);
+        return a;
     }
 
     static class SocketImpl extends WebSocket {
@@ -71,6 +75,8 @@ class Socket extends NanoWSD {
         @Override
         protected void onOpen() {
             // ignore
+            System.out.println("Trying to print");
+            WebInterface.out.println("ABcdef");
         }
 
         @Override
@@ -98,7 +104,24 @@ class Socket extends NanoWSD {
 class WebPrintStream extends PrintStream {
 
     // TODO: Actually forward the input to websocket
-    public WebPrintStream(OutputStream out) {
-        super(out);
+    public WebPrintStream(InputExtractor<NanoWSD.WebSocket> socket) {
+        super(new BufferedOutputStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                socket.getValue().send(String.valueOf((char) (b & 0xFF)));
+            }
+        }));
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                flush();
+            }
+        }).start();
+
     }
 }

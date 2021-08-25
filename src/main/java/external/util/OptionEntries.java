@@ -1,7 +1,7 @@
 package external.util;
 
 import external.gamepad.GamepadManager;
-import external.webinterface.WebPrint;
+import external.webinterface.WebInterface;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,7 +87,7 @@ public interface OptionEntries {
         public static <T extends Enum<?>> TypeData<Enum<?>> enumType(Class<T> e) {
             TypeData<Enum<?>> t = new TypeData<>();
 
-            WebPrint.out.println(Arrays.toString(e.getTypeParameters()));
+            WebInterface.out.println(Arrays.toString(e.getTypeParameters()));
 
             CircularArrayList<Enum<?>> variants = new CircularArrayList<>();
             Collections.addAll(variants, e.getEnumConstants());

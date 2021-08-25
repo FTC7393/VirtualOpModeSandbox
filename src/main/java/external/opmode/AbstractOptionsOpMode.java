@@ -1,6 +1,6 @@
 package external.opmode;
 
-import external.webinterface.WebPrint;
+import external.webinterface.WebInterface;
 import external.util.*;
 
 import java.io.File;
@@ -88,10 +88,10 @@ public class AbstractOptionsOpMode extends AbstractTeleOp {
     }
 
     private void storeAll() {
-        WebPrint.out.println(optionsMap);
+        WebInterface.out.println(optionsMap);
         for (Enum<?> option : optionsList) {
             store(option);
-            WebPrint.out.println(optionsMap.get(option));
+            WebInterface.out.println(optionsMap.get(option));
         }
         file.writeToFile(physicalFile);
     }
@@ -110,7 +110,7 @@ public class AbstractOptionsOpMode extends AbstractTeleOp {
     private void displayLine(int index) {
 
         if (index < 0 || index >= optionsList.length) {
-            WebPrint.out.println();
+            WebInterface.out.println();
             return;
         }
 
@@ -119,7 +119,7 @@ public class AbstractOptionsOpMode extends AbstractTeleOp {
 
         if (index == selected) {
 
-            WebPrint.out.printf(
+            WebInterface.out.printf(
                     ">%-" + leftSpacing + "s%s%n",
                     option.name(),
                     Utility.center(String.format("< %s >", value), LINE_WIDTH - leftSpacing)
@@ -127,7 +127,7 @@ public class AbstractOptionsOpMode extends AbstractTeleOp {
 
         } else {
 
-            WebPrint.out.printf(
+            WebInterface.out.printf(
                     " %-" + leftSpacing + "s%s%n",
                     option.name(),
                     Utility.center(value, LINE_WIDTH - leftSpacing)
@@ -149,7 +149,7 @@ public class AbstractOptionsOpMode extends AbstractTeleOp {
         physicalFile = new File(filename);
         try {
             if (physicalFile.createNewFile()) {
-                WebPrint.out.println("Past options were not found. Generating..");
+                WebInterface.out.println("Past options were not found. Generating..");
             }
         } catch (IOException e) {
             // ignore for now
@@ -168,7 +168,7 @@ public class AbstractOptionsOpMode extends AbstractTeleOp {
     @Override
     protected void setup() {
         loadAll();
-        WebPrint.out.println(optionsMap);
+        WebInterface.out.println(optionsMap);
     }
 
     @Override
