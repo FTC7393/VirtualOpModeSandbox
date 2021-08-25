@@ -168,7 +168,6 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
     @Override
     protected void setup() {
         loadAll();
-        display();
     }
 
     @Override
@@ -178,7 +177,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     @Override
     protected void go() {
-        // ignore
+        display();
     }
 
     @Override
