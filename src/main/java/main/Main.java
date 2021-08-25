@@ -1,5 +1,7 @@
 package main;
 
+import examples.ExampleOptionsOp;
+import examples.GameChangersOptionOp;
 import external.util.Cell;
 import external.opmode.AbstractOptionsOpMode;
 import external.opmode.HardwarelessAbstractOp;
@@ -13,7 +15,7 @@ import java.net.URI;
 
 public class Main {
 
-    static final HardwarelessAbstractOp opMode = new OptionsOp();
+    static final HardwarelessAbstractOp opMode = new GameChangersOptionOp("options-test");
     static volatile Cell<Boolean> connected = new Cell<>(false);
     static Thread opThread;
 
@@ -54,46 +56,4 @@ public class Main {
         System.exit(0); // to join the webserver worker as well
 
     }
-}
-
-class OptionsOp extends AbstractOptionsOpMode {
-
-    public OptionsOp() {
-        super("options-test", Options.class);
-    }
-
-}
-
-enum Options implements OptionEntries {
-
-    LIKE(TypeData
-            .integerType(1, 0, 10)
-            .withFallback(99)
-    ),
-    SUBSCRIBE(TypeData
-            .booleanType()
-            .withFallback(false)
-    ),
-    TESTENUM(TypeData
-            .enumType(ForkOptions.class)
-            .withFallback(ForkOptions.BRUH1)),
-    ;
-
-    TypeData<?> data;
-
-    Options(TypeData<?> data) {
-        this.data = data;
-    }
-
-    @Override
-    public TypeData<?> getData() {
-        return data;
-    }
-}
-
-enum ForkOptions {
-    BRUH1,
-    BRUH2,
-    BRUH3,
-    ;
 }
