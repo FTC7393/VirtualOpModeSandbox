@@ -7,13 +7,35 @@
     <script>
 
         const socket = new WebSocket('ws://localhost:8020');
+        const lines = Array(11).fill("");
 
+        const display = () => {
+            out = "";
+            for (const line of lines) {
+                console.log(line);
+                out += line + "<br>";
+            }
+            document.getElementById("console-text").innerHTML = out;
+        }
+
+        const append = (char) => {
+            if (char === '\n') {
+                lines.shift();
+                lines.push("");
+            } else {
+                lines[10] += char;
+            }
+        }
+
+        // socket logic
+        //
         const kill = () => {
             socket.send(`KILL`);
         }
 
         socket.addEventListener('message', (e) => {
-            console.log(`Recv: ${e.data}`);
+            append(e.data);
+            display();
         });
 
         document.addEventListener('keydown', (e) => {
@@ -24,13 +46,15 @@
         document.addEventListener('keyup', (e) => {
             socket.send(`KYUP${e.key}`);
         });
+        //
+        // end socket logic
 
     </script>
     <style>
         .console {
             background-color: #3b3c47;
             width: 800px;
-            height: 176px;
+            height: 230px;
         }
         .console-text {
             color: White;
@@ -44,13 +68,8 @@
     A content
 </p>
 <div class="console">
-    <p class="console-text">
+    <p class="console-text" id="console-text">
         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    </p>
-</div>
-<div id="Test">
-    <p>
-        A
     </p>
 </div>
 <button onclick="kill()">finished</button>
