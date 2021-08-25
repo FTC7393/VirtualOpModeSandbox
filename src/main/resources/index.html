@@ -6,13 +6,12 @@
     </title>
     <script>
 
-        const socket = new WebSocket('ws://localhost:8020');
+        const socket = new WebSocket('ws://localhost:28020');
         const lines = Array(11).fill("");
 
         const display = () => {
             out = "";
             for (const line of lines) {
-                console.log(line);
                 out += line + "<br>";
             }
             document.getElementById("console-text").innerHTML = out;
@@ -30,7 +29,7 @@
         // socket logic
         //
         const kill = () => {
-            socket.send(`KILL`);
+            socket.close();
         }
 
         socket.addEventListener('message', (e) => {
@@ -69,7 +68,7 @@
 </p>
 <div class="console">
     <p class="console-text" id="console-text">
-        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        Welcome to ElectronVolts simulated console
     </p>
 </div>
 <button onclick="kill()">finished</button>

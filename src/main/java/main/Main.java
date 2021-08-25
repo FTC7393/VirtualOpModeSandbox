@@ -8,6 +8,10 @@ import external.util.OptionEntries;
 import external.webinterface.WebInterface;
 import fi.iki.elonen.NanoHTTPD;
 
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+
 public class Main {
 
     static final HardwarelessAbstractOp opMode = new OptionsOp();
@@ -15,10 +19,6 @@ public class Main {
     static Thread opThread;
 
     public void start() {
-
-        // CAUTION!!! This variable is referenced in opmode worker thread. It must not be nulled.
-
-        // Operation runner
 
         opThread.start();
 
@@ -31,9 +31,15 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            NanoHTTPD webserver = new WebInterface(8080);
+            NanoHTTPD webserver = new WebInterface(28080);
         } catch (Exception e) {
             System.out.println(e);
+        }
+
+        try {
+            Desktop.getDesktop().browse(URI.create("http://localhost:28080"));
+        } catch (IOException e) {
+            System.out.println("Please open http://localhost:28080 in your browser");
         }
 
         opThread = new Thread(() -> {

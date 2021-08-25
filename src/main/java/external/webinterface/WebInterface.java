@@ -12,8 +12,6 @@ public class WebInterface extends NanoHTTPD {
     private static final File webpage = new File("src/main/resources/index.html");
     private static WebInterface self;
 
-    private final Socket socket;
-
     public static PrintStream out;
     public static VirtualGamepad vgp;
 
@@ -21,7 +19,7 @@ public class WebInterface extends NanoHTTPD {
         super(port);
 
         vgp = new VirtualGamepad();
-        socket = new Socket(8020);
+        Socket socket = new Socket(28020);
         out = new WebPrintStream(socket.active);
 
         if (self != null) {
@@ -113,6 +111,8 @@ class Socket extends NanoWSD {
 
 class WebPrintStream extends PrintStream {
 
+    InputExtractor<NanoWSD.WebSocket> socket;
+
     public WebPrintStream(InputExtractor<NanoWSD.WebSocket> socket) {
         super(new BufferedOutputStream(new OutputStream() {
             @Override
@@ -124,6 +124,8 @@ class WebPrintStream extends PrintStream {
                 }
             }
         }));
+
+        this.socket = socket;
 
         new Thread(() -> {
             while (true) {
