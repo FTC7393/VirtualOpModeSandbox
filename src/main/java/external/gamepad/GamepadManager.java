@@ -33,22 +33,6 @@ public class GamepadManager {
         //use this constructor for custom joystick scaling
 //    public GamepadManager(Gamepad gamepad, Function scalingFunction, InitButton initButton) {
 
-//        DigitalInputEdgeDetector rawStart = new DigitalInputEdgeDetector(() -> gamepad.start);
-//        detectors.add(rawStart);
-//        if (initButton == InitButton.A) {
-//            DigitalInputEdgeDetector rawA = new DigitalInputEdgeDetector(() -> gamepad.a);
-//            detectors.add(rawA);
-//            at = new ButtonAlivenessTester(rawA, rawStart);
-//        } else if (initButton == InitButton.B) {
-//            DigitalInputEdgeDetector rawB = new DigitalInputEdgeDetector(() -> gamepad.b);
-//            detectors.add(rawB);
-//            at = new ButtonAlivenessTester(rawB, rawStart);
-//        } else if (initButton == InitButton.NONE) {
-//            at = AlivenessTester.ALWAYS;
-//        } else {
-//            throw new RuntimeException("Unknown option for init button " + initButton.name());
-//        }
-
         //create all the DigitalInputEdgeDetector objects
         a = new DigitalInputEdgeDetector(() -> gamepad.a);
         b = new DigitalInputEdgeDetector(() -> gamepad.b);

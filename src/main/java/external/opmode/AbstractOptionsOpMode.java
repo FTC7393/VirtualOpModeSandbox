@@ -152,7 +152,6 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
                 System.out.println("Past options were not found. Generating..");
             }
         } catch (IOException e) {
-            // ignore for now
             e.printStackTrace();
         }
         file = new OptionsFile(BasicConverters.getInstance(), physicalFile);
@@ -193,17 +192,11 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
                 selected = Utility.limit(++selected, 0, optionsList.length - 1);
             }
 
-//            WebPrint.out.printf("Currently selecting: %s on index %d\n", optionsList[selected], selected);
-
             // mutating each entry
             Enum<?> mutating = optionsList[selected];
-            // debugging entry
-//            WebPrint.out.printf("old %s: %s\n", mutating.name(), optionsMap.get(mutating));
-
             Object next = asTypeData(mutating).mutator.mutate(driver1, optionsMap.get(mutating));
             if (next != null) {
                 optionsMap.put(mutating, next);
-//                WebPrint.out.printf("new %s: %s\n", mutating.name(), optionsMap.get(mutating));
             }
 
             display();

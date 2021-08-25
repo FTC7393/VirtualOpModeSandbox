@@ -6,7 +6,6 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 
 import java.io.*;
-import java.util.Locale;
 
 public class WebInterface extends NanoHTTPD {
 
@@ -92,7 +91,6 @@ class Socket extends NanoWSD {
 
         @Override
         protected void onMessage(WebSocketFrame message) {
-//            System.out.println(message.getTextPayload());
             String payload = message.getTextPayload();
             String command = payload.substring(0, 4);
             String arg = payload.substring(4);
