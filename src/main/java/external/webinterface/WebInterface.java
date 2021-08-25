@@ -85,7 +85,6 @@ class Socket extends NanoWSD {
 
         @Override
         protected void onClose(WebSocketFrame.CloseCode code, String reason, boolean initiatedByRemote) {
-            // TODO: kill program here
             connection.set(false);
         }
 
@@ -123,7 +122,7 @@ class WebPrintStream extends PrintStream {
             @Override
             public void write(int b) throws IOException {
                 try {
-                    socket.getValue().send(String.valueOf((char) (b & 0xFF)));
+                    socket.getValue().send(String.valueOf((char) (b & 0xFF))); //TODO: Find a way to do this without creating new string every data
                 } catch (NullPointerException e) {
                     System.out.println("The socket has not been connected yet. Given data has been dropped.");
                 }
@@ -135,7 +134,7 @@ class WebPrintStream extends PrintStream {
         new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(250);
+                    Thread.sleep(250); //TODO: Poll on timer instead of sleeping
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
