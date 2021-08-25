@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AbstractOptionsOpMode extends AbstractTeleOp {
+public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     // This probably won't work with the ftc app, since telemetry is not in mono (settings maybe?)
     protected final int LINES = 11; // Precondition: Amount of lines must always be odd
