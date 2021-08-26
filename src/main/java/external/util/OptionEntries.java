@@ -11,6 +11,7 @@ import java.util.Collections;
  * with the options defined by the enum names.
  * <p>
  * Here is an example implementation of {@code OptionEntries}:
+ * </p>
  * <pre>{@code
  * enum EElricOptions extends OptionEntries {
  *     HEIGHT(TypeData.integerType(1, 139, 149).withFallback(149)),
@@ -27,11 +28,14 @@ import java.util.Collections;
  *     }
  * }
  * }</pre>
+ * <p>
  * This implementation contains two settable options, {@code HEIGHT} and {@code IS_TALL}, an
- * {@code Integer} and {@code Boolean} respectively. To learn more about how to create TypeData
+ * {@code Integer} and {@code Boolean} respectively. To learn more about how to create TypeData*
  * instances, look at the TypeData documentation.
+ * </p>
+ * <p>
  * To run this inside an opmode, you can do this:
- *
+ * </p>
  * <pre>{@code
  * class EElricOptionsOpMode extends AbstractOptionsOpMode {
  *
@@ -41,9 +45,10 @@ import java.util.Collections;
  *
  * }
  * }</pre>
+ * <p>
  * See the {@link external.opmode.AbstractOptionsOpMode#AbstractOptionsOpMode AbstractOptionsOpMode constructor}
- * for more details on passing in {@code OptionEntries}.
- *
+ * for more details on registering {@code OptionEntries}.
+ * </p>
  * @see external.opmode.AbstractOptionsOpMode
  * @see TypeData
  */
@@ -66,6 +71,7 @@ public interface OptionEntries {
      * which is registered in an implementation of {@link OptionEntries}. When you register the TypeData,
      * it will be associated to a option. This option is set to a certain value, which will be called the
      * associated value. For example, in order to set a value as a fallback, you can do the following:
+     * </p>
      * <pre>{@code
      * enum Kaeri {
      *     GOHAN,
@@ -75,19 +81,23 @@ public interface OptionEntries {
      *
      * TypeData.enumType(Kaeri.class).withFallback(Kaeri.GOHAN);
      * }</pre>
+     * <p>
      * In other words, it's a thing which tells you how to do the thing on the
      * thing that you put in the thing. An associated thing, or metathing, if you will.
+     * </p>
      * <p>
      * For ease of use, factory methods have been included in this class to generate TypeData for commonly
      * used types. You can see them in the method list below. It is structurally allowed, but not recommended, to change
      * the fields by direct access. Instead, you should build {@code TypeData} incrementally using the
      * with* functions provided.
+     * </p>
      * <p>
      * It is important to remember: {@code TypeData} <i>DOES NOT</i> enforce for you the setting of its fields.
      * For instance, before an options file is created, not setting a fallback will result in a runtime
      * exception. However, after an associated value is created, the fallback value will not be used, so no
      * runtime exception will be generated. In addition, the factory methods already set these values, so
      * this only really applies to types you define yourself. Be wary of this when debugging.
+     * </p>
      *
      * @param <T> The type which TypeData represents
      */
@@ -125,9 +135,13 @@ public interface OptionEntries {
         /**
          * Assigns a fallback value to use if there was no associated value before
          * <p>
+         * If you used a factory method to make a predefined TypeData, you won't need to use this method,
+         * since it had already been called internally. However, this method is still accessible if you need it.
+         * </p>
+         * <p>
          * WARNING: This method doesn't do any checks on the value you pass it, except what's
          * enforced by the java typing system. Any weird values you end up with are your own responsibility.
-         *
+         * </p>
          * @param fallback The value to use on fallback
          * @return The caller
          */
