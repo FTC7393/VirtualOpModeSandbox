@@ -215,6 +215,7 @@ public interface OptionEntries {
 //            t.max = max;
 
             return t
+                    .withFallback(min)
                     .withMutator((gamepad, value) -> {
                         if (gamepad.right_bumper.justPressed()) {
                             return Utility.limit(value + step, min, max);
@@ -236,6 +237,7 @@ public interface OptionEntries {
             t.type = Boolean.class;
 
             return t
+                    .withFallback(false)
                     .withMutator((gamepad, value) -> {
                         if (gamepad.right_bumper.justPressed() || gamepad.left_bumper.justPressed()) {
                             return !value;
@@ -258,6 +260,7 @@ public interface OptionEntries {
             Collections.addAll(variants, e.getEnumConstants());
 
             return t
+                    .withFallback(variants.get(0))
                     .withMutator((gamepad, value) -> {
                         if (gamepad.right_bumper.justPressed()) {
                             return variants.next();
