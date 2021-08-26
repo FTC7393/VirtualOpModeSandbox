@@ -5,8 +5,6 @@ import external.util.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
@@ -71,14 +69,6 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     private String loadRaw(Enum<?> option) {
         return file.getValues().get(option.name());
-//        Converter c = asTypeData(option).converter;
-//        if (c != null) {
-//            Object out = c.fromString(file.getValues().get(option.name()));
-//            if (out == null) return asTypeData(option).fallback;
-//            return out;
-//        } else {
-//            return file.get(option.name(), asTypeData(option).fallback);
-//        }
     }
 
     private void store(Enum<?> option, Object value) {
@@ -91,22 +81,6 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
             file.set(option.name(), cl.cast(value));
         }
     }
-
-//    private void loadAll() {
-//        optionsMap.clear();
-//        for (Enum<?> option : optionsList) {
-//            optionsMap.put(option, load(option));
-//        }
-//    }
-
-//    private void storeAll() {
-//        WebInterface.out.println(optionsMap);
-//        for (Enum<?> option : optionsList) {
-//            store(option);
-//            WebInterface.out.println(optionsMap.get(option));
-//        }
-//        file.writeToFile(physicalFile);
-//    }
 
     private static OptionEntries.TypeData asTypeData(Enum<?> o) {
         return ((OptionEntries) o).getData();
@@ -127,7 +101,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
 
         Enum<?> option = optionsList[index];
-        String value = loadRaw(option); // TODO: Use converters here instead of Object::toString
+        String value = loadRaw(option);
 
         if (index == selected) {
 
@@ -167,8 +141,6 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
             e.printStackTrace();
         }
         file = new OptionsFile(BasicConverters.getInstance(), physicalFile);
-
-//        optionsMap = new HashMap<>();
     }
 
     @Override

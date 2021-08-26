@@ -131,7 +131,7 @@ public interface OptionEntries {
          * @param fallback The value to use on fallback
          * @return The caller
          */
-        public TypeData<T> withFallback(T fallback) { //TODO: Make this method unnecessary for factory types
+        public TypeData<T> withFallback(T fallback) {
             this.fallback = fallback;
             return this;
         }
