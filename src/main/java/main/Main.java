@@ -24,7 +24,7 @@ public class Main {
         try {
             NanoHTTPD webserver = new WebInterface(28080, connected);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
 
         try {
@@ -40,10 +40,20 @@ public class Main {
             while (!connected.get()) {
                 // WARNING: This method is not guaranteed to loop to completion (in fact, it probably won't run at all)
                 opMode.init_loop();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             opMode.start();
             while (connected.get()) {
                 opMode.loop();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             opMode.stop();
 
