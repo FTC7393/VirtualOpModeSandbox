@@ -3,9 +3,7 @@ package main;
 import examples.ExampleOptionsOp;
 import examples.GameChangersOptionOp;
 import external.util.Cell;
-import external.opmode.AbstractOptionsOpMode;
 import external.opmode.HardwarelessAbstractOp;
-import external.util.OptionEntries;
 import external.webinterface.WebInterface;
 import fi.iki.elonen.NanoHTTPD;
 
