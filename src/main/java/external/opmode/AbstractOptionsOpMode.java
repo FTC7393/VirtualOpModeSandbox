@@ -20,7 +20,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
     private final OptionsFile file;
 
     private final Enum<?>[] optionsList;
-    private final Map<Enum<?>, Object> optionsMap;
+//    private final Map<Enum<?>, Object> optionsMap;
 
     private int selected;
 
@@ -69,32 +69,44 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
     }
 
-    private void store(Enum<?> option) {
+    private String loadRaw(Enum<?> option) {
+        return file.getValues().get(option.name());
+//        Converter c = asTypeData(option).converter;
+//        if (c != null) {
+//            Object out = c.fromString(file.getValues().get(option.name()));
+//            if (out == null) return asTypeData(option).fallback;
+//            return out;
+//        } else {
+//            return file.get(option.name(), asTypeData(option).fallback);
+//        }
+    }
+
+    private void store(Enum<?> option, Object value) {
         Converter c = asTypeData(option).converter;
-        Object storing = optionsMap.get(option);
+//        Object storing = optionsMap.get(option);
         if (c != null) {
-            file.getValues().put(option.name(), c.toString(storing));
+            file.getValues().put(option.name(), c.toString(value));
         } else {
             Class<?> cl = asTypeData(option).type;
-            file.set(option.name(), cl.cast(storing));
+            file.set(option.name(), cl.cast(value));
         }
     }
 
-    private void loadAll() {
-        optionsMap.clear();
-        for (Enum<?> option : optionsList) {
-            optionsMap.put(option, load(option));
-        }
-    }
+//    private void loadAll() {
+//        optionsMap.clear();
+//        for (Enum<?> option : optionsList) {
+//            optionsMap.put(option, load(option));
+//        }
+//    }
 
-    private void storeAll() {
-        WebInterface.out.println(optionsMap);
-        for (Enum<?> option : optionsList) {
-            store(option);
-            WebInterface.out.println(optionsMap.get(option));
-        }
-        file.writeToFile(physicalFile);
-    }
+//    private void storeAll() {
+//        WebInterface.out.println(optionsMap);
+//        for (Enum<?> option : optionsList) {
+//            store(option);
+//            WebInterface.out.println(optionsMap.get(option));
+//        }
+//        file.writeToFile(physicalFile);
+//    }
 
     private static OptionEntries.TypeData asTypeData(Enum<?> o) {
         return ((OptionEntries) o).getData();
@@ -115,7 +127,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
 
         Enum<?> option = optionsList[index];
-        String value = optionsMap.get(option).toString(); // TODO: Use converters here instead of Object::toString
+        String value = loadRaw(option); // TODO: Use converters here instead of Object::toString
 
         if (index == selected) {
 
@@ -156,7 +168,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
         file = new OptionsFile(BasicConverters.getInstance(), physicalFile);
 
-        optionsMap = new HashMap<>();
+//        optionsMap = new HashMap<>();
     }
 
     @Override
@@ -166,7 +178,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     @Override
     protected void setup() {
-        loadAll();
+        // ignore
     }
 
     @Override
@@ -194,9 +206,9 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
             // mutating each entry
             Enum<?> mutating = optionsList[selected];
-            Object next = asTypeData(mutating).mutator.mutate(driver1, optionsMap.get(mutating));
+            Object next = asTypeData(mutating).mutator.mutate(driver1, load(mutating));
             if (next != null) {
-                optionsMap.put(mutating, next);
+                store(mutating, next);
             }
 
             display();
@@ -207,6 +219,6 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     @Override
     protected void end() {
-        storeAll();
+        file.writeToFile(physicalFile);
     }
 }
