@@ -6,6 +6,8 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 
 import java.io.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class WebInterface extends NanoHTTPD {
 
@@ -57,6 +59,7 @@ class Socket extends NanoWSD {
     WebSocket a;
     final InputExtractor<WebSocket> active = () -> a;
     private final Cell<Boolean> connection;
+    private TimerTask ping;
 
     public Socket(int port, Cell<Boolean> connection) {
         super(port);
@@ -72,6 +75,16 @@ class Socket extends NanoWSD {
     static class SocketImpl extends WebSocket {
 
         private final Cell<Boolean> connection;
+        private final TimerTask ping = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    ping("iusearchbtw".getBytes());
+                } catch (IOException e) {
+                    ping.cancel();
+                }
+            }
+        };
 
         public SocketImpl(IHTTPSession handshakeRequest, Cell<Boolean> connection) {
             super(handshakeRequest);
@@ -81,6 +94,7 @@ class Socket extends NanoWSD {
         @Override
         protected void onOpen() {
             connection.set(true);
+            new Timer().schedule(ping, 1000, 2000);
         }
 
         @Override
@@ -103,6 +117,8 @@ class Socket extends NanoWSD {
 
         @Override
         protected void onPong(WebSocketFrame pong) {
+
+            System.out.println("Received ping from client");
 
         }
 
