@@ -1,20 +1,20 @@
 package external.util;
 
 import external.gamepad.GamepadManager;
-import external.webinterface.WebInterface;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * This is a helper interface for the AbstractOptionsOpMode. By implementing this interface
- * on an enum, you can create and run an implementation of an AbstractOptionsOpMode.<br><br>
- * <p>
- * Here is an example of an implementation of {@code OptionEntries}:
+ * This is the interface for defining a list of settable Options.
+ * <br>
+ * By implementing this interface on an enum, you can create and run an {@link external.opmode.AbstractOptionsOpMode}
+ * with the options defined by the enum names.
+ * <br><br>
+ * Here is an example implementation of {@code OptionEntries}:
  * <pre>{@code
  * enum EElricOptions extends OptionEntries {
  *     HEIGHT(TypeData.integerType(1, 139, 149).withFallback(149)),
- *     EXTENDED(TypeData.booleanType().withFallback(false));
+ *     IS_TALL(TypeData.booleanType().withFallback(false));
  *
  *     TypeData<?> data;
  *
@@ -27,8 +27,7 @@ import java.util.Collections;
  *     }
  * }
  * }</pre>
- * <p>
- * This implementation contains two settable options, {@code HEIGHT} and {@code EXTENDED}, an
+ * This implementation contains two settable options, {@code HEIGHT} and {@code IS_TALL}, an
  * {@code Integer} and {@code Boolean} respectively. To learn more about how to create TypeData
  * instances, look at the TypeData documentation.
  * To run this inside an opmode, you can do this:
@@ -42,10 +41,8 @@ import java.util.Collections;
  *
  * }
  * }</pre>
- * <p>
- * Or use your preferred method of setting the file which the OpMode will write to.
  * See the {@link external.opmode.AbstractOptionsOpMode#AbstractOptionsOpMode AbstractOptionsOpMode constructor}
- * for more details on how to do that.
+ * for more details on passing in {@code OptionEntries}.
  *
  * @see external.opmode.AbstractOptionsOpMode
  * @see TypeData
@@ -53,6 +50,12 @@ import java.util.Collections;
 public interface OptionEntries {
 
     interface Mutator<T> {
+        /**
+         * @param gamepad A gamepad which acts the same as in an {@code AbstractTeleOp} during {@code act()}
+         * @param value   The old associated value
+         * @return The desired associated value
+         * @see TypeData#withMutator(Mutator)
+         */
         T mutate(GamepadManager gamepad, T value);
     }
 
@@ -77,7 +80,14 @@ public interface OptionEntries {
      * <br><br>
      * For ease of use, factory methods have been included in this class to generate TypeData for commonly
      * used types. You can see them in the method list below. It is structurally allowed, but not recommended, to change
-     * the fields by direct access. Instead, you should build it incrementally using the with* functions provided.
+     * the fields by direct access. Instead, you should build {@code TypeData} incrementally using the
+     * with* functions provided.
+     * <br><br>
+     * It is important to remember: {@code TypeData} <i>DOES NOT</i> enforce for you the setting of its fields.
+     * For instance, before an options file is created, not setting a fallback will result in a runtime
+     * exception. However, after an associated value is created, the fallback value will not be used, so no
+     * runtime exception will be generated. In addition, the factory methods already set these values, so
+     * this only really applies to types you define yourself. Be wary of this when debugging.
      *
      * @param <T> The type which TypeData represents
      */
@@ -140,7 +150,6 @@ public interface OptionEntries {
          * WARNING: This method doesn't do any checks on the value you pass it, except what's
          * enforced by the java typing system. Any weird values you end up with are your own responsibility.
          *
-         *
          * @param mutator The intended mutator
          * @return The caller
          */
@@ -162,6 +171,7 @@ public interface OptionEntries {
          * <br><br>
          * WARNING: This method doesn't do any checks on the value you pass it, except what's
          * enforced by the java typing system. Any weird values you end up with are your own responsibility.
+         *
          * @param converter The intended converter
          * @return The caller
          * @see Converters
@@ -172,12 +182,13 @@ public interface OptionEntries {
             return this;
         }
 
-        /** Generates a blank type
-         *
+        /**
+         * Generates a blank type
+         * <p>
          * used mostly for testing
          *
-         * @deprecated
          * @return A {@code TypeData<Object>}
+         * @deprecated
          */
         public static TypeData<Object> blankType() {
             TypeData<Object> t = new TypeData<>();
@@ -186,11 +197,12 @@ public interface OptionEntries {
             return t.withMutator((g, value) -> null);
         }
 
-        /** Generates an integer type
+        /**
+         * Generates an integer type
          *
          * @param step The amount to step every trigger
-         * @param min The least the option can be
-         * @param max The most the option can be
+         * @param min  The least the option can be
+         * @param max  The most the option can be
          * @return A {@code TypeData<Integer>}
          */
         public static TypeData<Integer> integerType(int step, int min, int max) {
@@ -213,7 +225,8 @@ public interface OptionEntries {
                     });
         }
 
-        /** Generates a boolean type
+        /**
+         * Generates a boolean type
          *
          * @return A {@code TypeData<Boolean>}
          */
@@ -230,10 +243,11 @@ public interface OptionEntries {
                     });
         }
 
-        /** Generates an enum type
+        /**
+         * Generates an enum type
          *
          * @param <T> The type of the enum
-         * @param e The {@link Class} of {@code T}
+         * @param e   The {@link Class} of {@code T}
          * @return A {@code TypeData<Enum<?>>}
          */
         public static <T extends Enum<?>> TypeData<Enum<?>> enumType(Class<T> e) {
@@ -271,8 +285,9 @@ public interface OptionEntries {
 
     }
 
-    /** Access function for data
-     *
+    /**
+     * Access function for data
+     * <br>
      * See the class documentation for an example for how to implement this.
      *
      * @return the associated {@code TypeData}
