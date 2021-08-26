@@ -40,6 +40,7 @@ public class OptionsFile {
         }
 
         this.values = new JSONObject(values);
+        writeToFile();
 
     }
 
@@ -77,6 +78,19 @@ public class OptionsFile {
             values.writeJSONString(w);
             w.close();
         } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Request a drop of all stored data, refer to data stored in file
+     * @return Operation success
+     */
+    public boolean drop() {
+        try {
+            values = (JSONObject) new JSONParser().parse(new BufferedReader(new FileReader(physicalFile)));
+        } catch (IOException | ParseException e) {
             return false;
         }
         return true;

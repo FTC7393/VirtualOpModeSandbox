@@ -43,6 +43,14 @@ public class VirtualGamepad {
             case "/":
                 right_bumper = isDownEvent;
                 break;
+            case "b":
+                start = isDownEvent;
+                break;
+            case "n":
+                back = isDownEvent;
+                break;
+            default:
+                System.out.printf("pressed key: %s%n", ev);
         }
     }
 

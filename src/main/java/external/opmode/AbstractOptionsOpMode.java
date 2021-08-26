@@ -21,6 +21,7 @@ import java.io.IOException;
  * </p>
  * All you need to implement for this class is a constructor. There are also some exposed protected
  * fields that you can change for increased functionality.
+ *
  * @see OptionEntries
  */
 public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
@@ -84,6 +85,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     /**
      * Load the selected option's associated value as the type specified in the OptionEntry's TypeData
+     *
      * @param option The option to load associated value with
      * @return The object from the internal map
      */
@@ -100,8 +102,9 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     /**
      * Store the given object as the option's associated value
+     *
      * @param option The option to store with
-     * @param value The value to store
+     * @param value  The value to store
      */
     private void store(Enum<?> option, Object value) {
         Converter c = asTypeData(option).converter;
@@ -115,14 +118,16 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     /**
      * A convenience function which makes it easier to load defaults on startup
-     * @param option The option to load, then store
      */
-    private void initLoad(Enum<?> option) {
-        try {
-            file.get(option.name(), String.class);
-        } catch (IllegalArgumentException e) {
-            store(option, asTypeData(option).fallback);
+    private void initLoad() {
+        for (Enum option : optionsList) {
+            try {
+                file.get(option.name(), String.class);
+            } catch (IllegalArgumentException e) {
+                store(option, asTypeData(option).fallback);
+            }
         }
+
     }
 
     /**
@@ -177,8 +182,9 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
     /**
      * Describes the options to the backend
      * <p>
-     *     TODO: Explain better, maybe even don't use "backend"
+     * TODO: Explain better, maybe even don't use "backend"
      * </p>
+     *
      * @param optionsFilePath
      * @param options
      */
@@ -207,9 +213,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     @Override
     protected void setup() {
-        for (Enum<?> option : optionsList) {
-            initLoad(option);
-        }
+        initLoad();
         // ignore
     }
 
@@ -227,24 +231,30 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
     protected void act() {
 
         if (driver1.justTriggered()) {
+            if (driver1.back.justPressed()) {
+                file.drop();
+                initLoad();
+            } else if (driver1.start.justPressed()) {
+                file.writeToFile();
+            } else  {
 
-            // selecting
-            if (driver1.dpad_up.justPressed()) {
-                selected = Utility.limit(--selected, 0, optionsList.length - 1);
-            }
-            if (driver1.dpad_down.justPressed()) {
-                selected = Utility.limit(++selected, 0, optionsList.length - 1);
-            }
+                // selecting
+                if (driver1.dpad_up.justPressed()) {
+                    selected = Utility.limit(--selected, 0, optionsList.length - 1);
+                }
+                if (driver1.dpad_down.justPressed()) {
+                    selected = Utility.limit(++selected, 0, optionsList.length - 1);
+                }
 
-            // mutating each entry
-            Enum<?> mutating = optionsList[selected];
-            Object next = asTypeData(mutating).mutator.mutate(driver1, load(mutating));
-            if (next != null) {
-                store(mutating, next);
-            }
+                // mutating each entry
+                Enum<?> mutating = optionsList[selected];
+                Object next = asTypeData(mutating).mutator.mutate(driver1, load(mutating));
+                if (next != null) {
+                    store(mutating, next);
+                }
 
+            }
             display();
-
         }
 
     }
