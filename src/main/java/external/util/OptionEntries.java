@@ -190,6 +190,7 @@ public interface OptionEntries {
          * @return A {@code TypeData<Object>}
          * @deprecated
          */
+        @Deprecated
         public static TypeData<Object> blankType() {
             TypeData<Object> t = new TypeData<>();
             t.type = Object.class;
