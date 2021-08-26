@@ -146,17 +146,11 @@ class WebPrintStream extends PrintStream {
         }));
 
         this.socket = socket;
-
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(250); //TODO: Poll on timer instead of sleeping
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
                 flush();
             }
-        }).start();
-
+        }, 50, 250);
     }
 }
