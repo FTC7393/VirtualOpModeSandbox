@@ -9,7 +9,7 @@ import java.util.Collections;
  * <br>
  * By implementing this interface on an enum, you can create and run an {@link external.opmode.AbstractOptionsOpMode}
  * with the options defined by the enum names.
- * <br><br>
+ * <p>
  * Here is an example implementation of {@code OptionEntries}:
  * <pre>{@code
  * enum EElricOptions extends OptionEntries {
@@ -61,7 +61,7 @@ public interface OptionEntries {
 
     /**
      * Representation of a type for use in {@link external.opmode.AbstractOptionsOpMode}
-     * <br><br>
+     * <p>
      * This class presents to {@code AbstractOptionsOpMode} instructions for how to manipulate a type
      * which is registered in an implementation of {@link OptionEntries}. When you register the TypeData,
      * it will be associated to a option. This option is set to a certain value, which will be called the
@@ -77,12 +77,12 @@ public interface OptionEntries {
      * }</pre>
      * In other words, it's a thing which tells you how to do the thing on the
      * thing that you put in the thing. An associated thing, or metathing, if you will.
-     * <br><br>
+     * <p>
      * For ease of use, factory methods have been included in this class to generate TypeData for commonly
      * used types. You can see them in the method list below. It is structurally allowed, but not recommended, to change
      * the fields by direct access. Instead, you should build {@code TypeData} incrementally using the
      * with* functions provided.
-     * <br><br>
+     * <p>
      * It is important to remember: {@code TypeData} <i>DOES NOT</i> enforce for you the setting of its fields.
      * For instance, before an options file is created, not setting a fallback will result in a runtime
      * exception. However, after an associated value is created, the fallback value will not be used, so no
@@ -124,7 +124,7 @@ public interface OptionEntries {
 
         /**
          * Assigns a fallback value to use if there was no associated value before
-         * <br><br>
+         * <p>
          * WARNING: This method doesn't do any checks on the value you pass it, except what's
          * enforced by the java typing system. Any weird values you end up with are your own responsibility.
          *
@@ -138,15 +138,15 @@ public interface OptionEntries {
 
         /**
          * Assigns a mutator on the associated value
-         * <br><br>
+         * <p>
          * TLDR, a mutator is just a function which changes the associated value. A mutator takes
          * the GamepadManager as the first argument, and the current associated value as the second argument.
          * It should return the mutated associated value. However, it also is allowed to return {@code null},
          * which means that there should be no change to the associated value.
-         * <br><br>
+         * <p>
          * If you used a factory method to make a predefined TypeData, you won't need to use this method,
          * since it had already been called internally. However, this method is still accessible if you need it.
-         * <br><br>
+         * <p>
          * WARNING: This method doesn't do any checks on the value you pass it, except what's
          * enforced by the java typing system. Any weird values you end up with are your own responsibility.
          *
@@ -160,15 +160,15 @@ public interface OptionEntries {
 
         /**
          * Assigns a converter on the associated value
-         * <br><br>
+         * <p>
          * The converter is a serializer/deserializer which specializes in a certain type. If you want your
          * value to be displayed in a custom way, then you will want this function. If there is no converter
          * in the {@code Converters} impl that you passed to the AbstractOptionsOpMode, you will need this function.
-         * <br><br>
+         * <p>
          * If you used a factory method to make a predefined TypeData, you won't need to use this method,
          * since, if it was necessary, it had already been called internally. However, this method is still
          * accessible if you need it.
-         * <br><br>
+         * <p>
          * WARNING: This method doesn't do any checks on the value you pass it, except what's
          * enforced by the java typing system. Any weird values you end up with are your own responsibility.
          *
