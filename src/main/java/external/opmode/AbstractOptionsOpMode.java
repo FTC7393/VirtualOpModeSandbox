@@ -2,6 +2,7 @@ package external.opmode;
 
 import external.webinterface.WebInterface;
 import external.util.*;
+import org.json.simple.parser.ParseException;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +19,8 @@ import java.io.IOException;
  * <p>
  * TODO: Include explanation of OptionEntries and type-value associations
  * </p>
- * All you need to implement for this class is a constructor. However, there are some exposed protected
- * fields that you can edit for increased functionality.
+ * All you need to implement for this class is a constructor. There are also some exposed protected
+ * fields that you can change for increased functionality.
  * @see OptionEntries
  */
 public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
@@ -36,8 +37,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
     private final int START_OFFSET = (LINES - 1) / 2;
     private final int leftSpacing;
 
-    private final File physicalFile;
-    private final OptionsFile file;
+    private OptionsFile file;
 
     private final Enum<?>[] optionsList;
 //    private final Map<Enum<?>, Object> optionsMap;
@@ -90,21 +90,12 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
     private Object load(Enum<?> option) {
         Converter<?> c = asTypeData(option).converter;
         if (c != null) {
-            Object out = c.fromString(file.getValues().get(option.name()));
+            Object out = c.fromString(file.getRaw(option.name()));
             if (out == null) return asTypeData(option).fallback;
             return out;
         } else {
             return file.get(option.name(), asTypeData(option).fallback);
         }
-    }
-
-    /**
-     * Load the selected option's associated value as a {@code String}
-     * @param option The option to load associated value with
-     * @return The {@code String} representation of the object from the internal map
-     */
-    private String loadRaw(Enum<?> option) {
-        return file.getValues().get(option.name());
     }
 
     /**
@@ -114,12 +105,23 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
      */
     private void store(Enum<?> option, Object value) {
         Converter c = asTypeData(option).converter;
-//        Object storing = optionsMap.get(option);
         if (c != null) {
             file.getValues().put(option.name(), c.toString(value));
         } else {
-            Class<?> cl = asTypeData(option).type;
-            file.set(option.name(), cl.cast(value));
+            Class<?> _c = asTypeData(option).type;
+            file.set(option.name(), _c.cast(value));
+        }
+    }
+
+    /**
+     * A convenience function which makes it easier to load defaults on startup
+     * @param option The option to load, then store
+     */
+    private void initLoad(Enum<?> option) {
+        try {
+            file.get(option.name(), String.class);
+        } catch (IllegalArgumentException e) {
+            store(option, asTypeData(option).fallback);
         }
     }
 
@@ -151,7 +153,7 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
 
         Enum<?> option = optionsList[index];
-        String value = loadRaw(option);
+        String value = file.getRaw(option.name());
 
         if (index == selected) {
 
@@ -190,15 +192,12 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
         leftSpacing = longest - (longest % 4) + 4 + 4; // add an extra 4 on there to make sure there's definitely space between name and option
 
-        physicalFile = new File(optionsFilePath);
+        File physicalFile = new File(optionsFilePath);
         try {
-            if (physicalFile.createNewFile()) {
-                System.out.println("Past options were not found. Generating..");
-            }
-        } catch (IOException e) {
+            file = new OptionsFile(BasicConverters.getInstance(), physicalFile);
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-        file = new OptionsFile(BasicConverters.getInstance(), physicalFile);
     }
 
     @Override
@@ -208,6 +207,9 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     @Override
     protected void setup() {
+        for (Enum<?> option : optionsList) {
+            initLoad(option);
+        }
         // ignore
     }
 
@@ -249,6 +251,6 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     @Override
     protected void end() {
-        file.writeToFile(physicalFile);
+        file.writeToFile();
     }
 }

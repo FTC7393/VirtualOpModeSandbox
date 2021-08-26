@@ -1,133 +1,85 @@
 package external.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.*;
 import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.IllegalFormatConversionException;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.regex.Pattern;
+import java.util.*;
 
 /**
  * This file was made by the electronVolts, FTC team 7393
- *
+ * <p>
  * This class stores and retrieves values from a file. It should probably be
  * replaced by an XML or JSON interpreter.
  */
 public class OptionsFile {
-    private static final String DEFAULT_ARRAY_SEPARATOR = ",";
-    private static final String DEFAULT_SEPARATOR = "=";
 
-    /**
-     * converts objects to and from strings
-     */
     private final Converters converters;
 
-    /**
-     * stores the strings that are read to and written from files
-     */
-    private Map<String, String> values;
+    private JSONObject values;
+    private final File physicalFile;
 
     /**
      * @param converters the utilities that convert strings to and from objects
+     * @param values     the map of values to be loaded
+     * @param file       The file which will be written to (keep in mind that it will be overwritten, and this method will
+     *                   not read it. It will be gone, reduced to atoms);
+     * @throws IOException When the file couldn't be created
      */
-    public OptionsFile(Converters converters) {
+    @SuppressWarnings("unused")
+    public OptionsFile(Converters converters, Map<String, String> values, File file) throws IOException {
+        this.physicalFile = file;
         this.converters = converters;
-        values = new HashMap<>();
-    }
 
-    /**
-     * @param converters the utilities that convert strings to and from objects
-     * @param values the map of values to be loaded
-     */
-    public OptionsFile(Converters converters, Map<String, String> values) {
-        this.converters = converters;
-        this.values = values;
+        physicalFile.delete();
+        if (!physicalFile.createNewFile()) {
+            throw new IOException("An options storage file was not found, but could not create a new one");
+        }
+
+        this.values = new JSONObject(values);
+
     }
 
     /**
      * retrieve an OptionsFile from a file
      *
      * @param converters the utilities that convert strings to and from objects
-     * @param file the file to read from
-     * @return the OptionsFile
+     * @param file       the file to read from
+     * @throws IOException    When the file couldn't be created
+     * @throws ParseException When the given file doesn't have a valid json format
      */
-    public OptionsFile(Converters converters, File file) {
+    @SuppressWarnings("unused")
+    public OptionsFile(Converters converters, File file) throws IOException, ParseException {
         this.converters = converters;
-        values = new HashMap<>();
-        BufferedReader br = null;
+        this.physicalFile = file;
         try {
-            //read each line of the file
-            br = new BufferedReader(new FileReader(file));
-            String separator = br.readLine();
-            if (separator == null) return;
-            String line;
-            while ((line = br.readLine()) != null) {
-                try {
-                    //split the line at the "="
-                    String[] elements = line.split(separator);
-
-                    //extract the key and value from the split line
-                    String key = elements[0].trim();
-                    String value = elements[1].trim();
-
-                    //put the key and value into the map
-                    values.put(key, value);
-                } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                }
+            values = (JSONObject) new JSONParser().parse(new BufferedReader(new FileReader(file)));
+        } catch (FileNotFoundException | ParseException e) {
+            file.delete();
+            if (!file.createNewFile()) {
+                throw new IOException("An options storage file was not found, but could not create a new one");
             }
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } finally {
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            values = new JSONObject();
         }
     }
 
     /**
      * store the values to a file
      *
-     * @param file the file
      * @return whether or not it worked
      */
-    public boolean writeToFile(File file) {
+    public boolean writeToFile() {
         try {
-            FileWriter fw = new FileWriter(file);
-
-            String separator = DEFAULT_SEPARATOR;
-            boolean done = false;
-            while (!done) {
-                done = true;
-                for (Map.Entry<String, String> entry : values.entrySet()) {
-                    if (entry.getKey().contains(separator) || entry.getValue().contains(separator)) {
-                        done = false;
-                        separator += DEFAULT_SEPARATOR;
-                        break;
-                    }
-                }
-            }
-
-            fw.write(separator + "\n");
-            for (Map.Entry<String, String> entry : values.entrySet()) {
-                fw.write(entry.getKey() + separator + entry.getValue() + "\n");
-            }
-            fw.close();
-            return true;
+            BufferedWriter w = new BufferedWriter(new FileWriter(physicalFile));
+            values.writeJSONString(w);
+            w.close();
         } catch (IOException e) {
-            e.printStackTrace();
             return false;
         }
+        return true;
     }
 
     /**
@@ -140,24 +92,20 @@ public class OptionsFile {
     /**
      * set a value in the map
      *
-     * @param tag the name of the value
+     * @param tag    the name of the value
      * @param object the Object to put into the map
      */
     public <T> void set(String tag, T object) {
 
-        //if the object is null, add a null value to the map
         if (object == null) {
             values.put(tag, null);
             return;
         }
 
-        //get the class to convert to
-        Class<T> clazz = (Class<T>) object.getClass();
-
         //get the converter for the specified class
+        Class<T> clazz = (Class<T>) object.getClass();
         Converter<T> converter = converters.getConverter(clazz);
 
-        //throw an error if there is no converter for the class
         if (converter == null) {
             throw new MissingResourceException("No converter given.", converters.getClass().getName(), clazz.getName());
         }
@@ -174,23 +122,11 @@ public class OptionsFile {
 
     /**
      * set an array of values in a map
-     * 
-     * @param tag the name of the value
+     *
+     * @param tag     the name of the value
      * @param objects the array of objects to put in the map
      */
     public <T> void setArray(String tag, T[] objects) {
-        setArray(tag, objects, DEFAULT_ARRAY_SEPARATOR);
-    }
-
-    /**
-     * set an array of values in a map
-     * 
-     * @param tag the name of the value
-     * @param objects the array of objects to put in the map
-     * @param separator the string to join the array elements with. Cannot be in
-     *            the output of the conversion for any item of the array
-     */
-    public <T> void setArray(String tag, T[] objects, String separator) {
         //if the object is null, add a null value to the map
         if (objects == null) {
             values.put(tag, null);
@@ -208,56 +144,23 @@ public class OptionsFile {
             throw new MissingResourceException("No converter given for \"" + clazz.getName() + "\".", converters.getClass().getName(), clazz.getName());
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
+        List<String> out = new ArrayList<>();
 
-        boolean first = true;
         for (T object : objects) {
-            if (!first) stringBuilder.append(separator);
-            first = false;
-
-            //convert the value to a string
-            String string = converter.toString(object);
-
-            //if the result is null, throw an exception
-            if (string == null) throw new IllegalFormatConversionException((char) 0, clazz);
-            if (string.contains(separator)) {
-                throw new IllegalArgumentException("Converted input \"" + string + "\" cannot contain separator \"" + separator + "\".");
-            }
-
-            //append it to the string builder
-            stringBuilder.append(string);
+            out.add(converter.toString(object));
         }
-
-        //build the string
-        String string = stringBuilder.toString();
-
         //add the key-value pair to the values map
-        values.put(tag, string);
+        values.put(tag, out);
     }
 
     /**
-     * 
-     * @param tag the name of the value
+     * @param tag   the name of the value
      * @param clazz the class to convert to
      * @return an array of the specified type
      * @throws IllegalArgumentException if there is no converter for the given
-     *             type
+     *                                  type
      */
     public <T> T[] getArray(String tag, Class<T> clazz) {
-        return getArray(tag, clazz, DEFAULT_ARRAY_SEPARATOR);
-    }
-
-    /**
-     * 
-     * @param tag the name of the value
-     * @param clazz the class to convert to
-     * @param separator the string to separate the array elements with (not a
-     *            regex)
-     * @return an array of the specified type
-     * @throws IllegalArgumentException if there is no converter for the given
-     *             type
-     */
-    public <T> T[] getArray(String tag, Class<T> clazz, String separator) {
         //get the converter for the specified class
         Converter<T> converter = converters.getConverter(clazz);
 
@@ -271,39 +174,27 @@ public class OptionsFile {
         }
 
         //get the value from the map
-        String string = values.get(tag);
+        JSONArray valueArray = (JSONArray) values.get(tag);
+        T[] results = (T[]) Array.newInstance(clazz, valueArray.size()); // like rust unsafe code but worse
 
-        //if the input is null, return null
-        if (string == null) return null;
-
-        //separate the string into parts. use the separator as a literal string, not a regex
-        String[] parts = string.split(Pattern.quote(separator));
-
-        T[] results = (T[]) Array.newInstance(clazz, parts.length);
-        for (int i=0; i<parts.length; i++) {
-            String part = parts[i];
-
-            //convert the string to the object
-            T result = converter.fromString(part);
-
-            //if the result is null, throw an exception
-            if (result == null) throw new IllegalFormatConversionException((char) 0, clazz);
-
-            results[i] = result;
+        int it = 0;
+        for (Object v : valueArray) {
+            results[it] = (T) v;
+            it++;
         }
 
         return results;
     }
 
     /**
-     * @param tag the name of the value
+     * @param tag   the name of the value
      * @param clazz the class to convert to
      * @return the value converted to the specified type
-     * @throws MissingResourceException if there is no converter for the given
-     *             type
-     * @throws IllegalArgumentException if there is no value with the given tag
+     * @throws MissingResourceException         if there is no converter for the given
+     *                                          type
+     * @throws IllegalArgumentException         if there is no value with the given tag
      * @throws IllegalFormatConversionException if the string could not be
-     *             converted to the specified object
+     *                                          converted to the specified object
      */
     public <T> T get(String tag, Class<T> clazz) {
         if (clazz == null) {
@@ -318,12 +209,7 @@ public class OptionsFile {
             throw new MissingResourceException("No converter given.", converters.getClass().getName(), clazz.getName());
         }
 
-        if (!values.containsKey(tag)) {
-            throw new IllegalArgumentException();
-        }
-
-        //get the value from the map
-        String string = values.get(tag);
+        String string = getRaw(tag);
 
         //if the input is null, return null
         if (string == null) return null;
@@ -338,13 +224,14 @@ public class OptionsFile {
     }
 
     /**
-     * @param tag the name of the value
-     * @param clazz the class to convert to
-     * @param fallback the value to use if the conversion fails
+     * @param tag      the name of the value
+     * @param fallback the value to use if none is found
      * @return the value converted to the specified type
+     * @throws IllegalArgumentException if there is no converter for the given
+     *                                  type
      */
-    public <T> T get(String tag, Class<T> clazz, T fallback) {
-        //try to convert, otherwise return the fallback
+    public <T> T get(String tag, T fallback) {
+        Class<T> clazz = (Class<T>) fallback.getClass();
         try {
             return get(tag, clazz);
         } catch (IllegalArgumentException e) {
@@ -353,17 +240,16 @@ public class OptionsFile {
     }
 
     /**
+     * Return a string representation of the given tag
      * @param tag the name of the value
-     * @param fallback the value to use if none is found
-     * @return the value converted to the specified type
-     * @throws IllegalArgumentException if there is no converter for the given
-     *             type
+     * @return the string representation of the value
      */
-    public <T> T get(String tag, T fallback) {
-        //get the class to convert to
-        Class<T> clazz = (Class<T>) fallback.getClass();
+    public String getRaw(String tag) {
+        if (!values.containsKey(tag)) {
+            throw new IllegalArgumentException();
+        }
 
-        return get(tag, clazz, fallback);
+        return (String) values.get(tag);
     }
 
 }
