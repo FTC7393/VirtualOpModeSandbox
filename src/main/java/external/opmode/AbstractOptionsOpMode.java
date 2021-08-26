@@ -6,10 +6,32 @@ import external.util.*;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * A TeleOp for making persistent K-V settings.
+ * <p>
+ * When the TeleOp is run, a menu shows up, similar to the one shown here:
+ * <p>
+ * <img src="doc/example_optionsop_menu.png"/>
+ * </p>
+ * Use dpad up and down to navigate the menu. Changing values is implementation-dependent, but for
+ * the pre-made types, use left and right bumper to modify values.
+ * <p>
+ * TODO: Include explanation of OptionEntries and type-value associations
+ * </p>
+ * All you need to implement for this class is a constructor. However, there are some exposed protected
+ * fields that you can edit for increased functionality.
+ * @see OptionEntries
+ */
 public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
 
     // This probably won't work with the ftc app, since telemetry is not in mono (settings maybe?)
+    /**
+     * The amount of lines the output terminal has. For now, keep it odd (I think it still works otherwise).
+     */
     protected final int LINES = 11; // Precondition: Amount of lines must always be odd
+    /**
+     * The width of a line on the output terminal
+     */
     protected final int LINE_WIDTH = 80;
     private final int START_OFFSET = (LINES - 1) / 2;
     private final int leftSpacing;
@@ -20,6 +42,9 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
     private final Enum<?>[] optionsList;
 //    private final Map<Enum<?>, Object> optionsMap;
 
+    /**
+     * The index of the option which is currently selected
+     */
     private int selected;
 
     // I don't like this system. However, it makes writing an OptionEntries enum pain-free.
@@ -56,8 +81,14 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
     // This makes the converter itself less flexible (maybe will pose problems extending it), but I
     // think this is the best option. It would, however, introduce even more unfamiliar api when making
     // a custom converter.
+
+    /**
+     * Load the selected option's associated value as the type specified in the OptionEntry's TypeData
+     * @param option The option to load associated value with
+     * @return The object from the internal map
+     */
     private Object load(Enum<?> option) {
-        Converter c = asTypeData(option).converter;
+        Converter<?> c = asTypeData(option).converter;
         if (c != null) {
             Object out = c.fromString(file.getValues().get(option.name()));
             if (out == null) return asTypeData(option).fallback;
@@ -67,10 +98,20 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
     }
 
+    /**
+     * Load the selected option's associated value as a {@code String}
+     * @param option The option to load associated value with
+     * @return The {@code String} representation of the object from the internal map
+     */
     private String loadRaw(Enum<?> option) {
         return file.getValues().get(option.name());
     }
 
+    /**
+     * Store the given object as the option's associated value
+     * @param option The option to store with
+     * @param value The value to store
+     */
     private void store(Enum<?> option, Object value) {
         Converter c = asTypeData(option).converter;
 //        Object storing = optionsMap.get(option);
@@ -82,10 +123,16 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
     }
 
+    /**
+     * Helper function to make it easier to work with OptionEntry enums
+     */
     private static OptionEntries.TypeData asTypeData(Enum<?> o) {
         return ((OptionEntries) o).getData();
     }
 
+    /**
+     * Helper function to display an entire page to the terminal
+     */
     protected void display() {
         int base = selected - START_OFFSET;
         for (int i = 0; i < LINES; i++) {
@@ -93,6 +140,9 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
     }
 
+    /**
+     * Display a certain line
+     */
     private void displayLine(int index) {
 
         if (index < 0 || index >= optionsList.length) {
@@ -122,6 +172,14 @@ public abstract class AbstractOptionsOpMode extends AbstractTeleOp {
         }
     }
 
+    /**
+     * Describes the options to the backend
+     * <p>
+     *     TODO: Explain better, maybe even don't use "backend"
+     * </p>
+     * @param optionsFilePath
+     * @param options
+     */
     protected AbstractOptionsOpMode(String optionsFilePath, Class<? extends Enum<?>> options) {
         this.optionsList = options.getEnumConstants();
 
